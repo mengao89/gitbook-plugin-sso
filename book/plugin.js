@@ -1,11 +1,13 @@
 require(["gitbook"], function(gitbook) {
-    gitbook.events.bind("start", function(e, config) {
-        let timer = setInterval(() => {
-            let content = document.querySelector('#login-iframe').contentWindow;
+    window.timer = null;
+    function checkLoginStatus() {
+        if(window.timer)return;
+        window.timer = setInterval(function(){
+            var content = document.querySelector('#login-iframe').contentWindow;
             content.postMessage({check: true}, '*');
         }, 500);
 
-        window.addEventListener('message', (event) => {
+        window.addEventListener('message', function(event){
             var fullTicketId = '';
             if (typeof event.data === 'string') {
                 try {
@@ -16,13 +18,17 @@ require(["gitbook"], function(gitbook) {
             }
             if (event.data && fullTicketId) {
                 // 登录成功，清除定时器，不做其它操作
-                clearInterval(timer);
+                clearInterval(window.timer);
+                window.timer = null;
             } else if (event.data && event.data.check ) {
                 // 登录失败，需要重定向至登录页面
                 window.location.href="/#login";
-                clearInterval(timer);
+                clearInterval(window.timer);
             }
         }, false);
         window.__LISTENING_LOGIN_MESSAGE__ = true;
-    });
+    }
+
+    gitbook.events.bind("start", checkLoginStatus);
+    gitbook.events.bind("page.change", checkLoginStatus);
 });
