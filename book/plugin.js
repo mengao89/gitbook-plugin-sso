@@ -23,7 +23,7 @@ require(["gitbook"], function(gitbook) {
               document.getElementsByClassName('cover')[0].style.display='none';
           } else if (event.data && event.data.check ) {
               // 登录失败，需要重定向至登录页面
-              window.location.href="/web/#login";
+              window.location.href="/#login";
               clearInterval(window.timer);
           }
       }, false);
